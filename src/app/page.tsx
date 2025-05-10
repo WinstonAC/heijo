@@ -1,103 +1,114 @@
-import Image from "next/image";
+"use client";
+import React, { useRef, useState } from 'react';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const emailRef = useRef<HTMLInputElement>(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+  // Animation: Each letter floats/rotates slightly, looping
+  const logo = 'Heijō'.split('');
+  const animationDelays = [0, 0.2, 0.4, 0.6, 0.8];
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    const email = emailRef.current?.value;
+    if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      setError('Please enter a valid email.');
+      setLoading(false);
+      return;
+    }
+    try {
+      const res = await fetch('/api/join', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      if (res.ok) {
+        setSubmitted(true);
+      } else {
+        setError('Something went wrong. Please try again.');
+      }
+    } catch {
+      setError('Something went wrong. Please try again.');
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col justify-between items-center bg-[var(--background)] text-[var(--foreground)] px-4 py-8 sm:py-16 font-sans">
+      <main className="flex flex-1 flex-col justify-center items-center w-full max-w-lg mx-auto gap-10">
+        {/* Animated Logo */}
+        <h1 className="flex text-5xl sm:text-6xl font-normal mb-2 tracking-tight select-none" style={{ fontFamily: 'var(--font-logo)' }}>
+          {logo.map((char, i) => (
+            <span
+              key={i}
+              className="inline-block"
+              style={{
+                animation: `float 2.8s ease-in-out ${animationDelays[i]}s infinite`,
+                display: 'inline-block',
+                minWidth: '0.7em',
+              }}
+            >
+              {char}
+            </span>
+          ))}
+        </h1>
+        {/* Tagline */}
+        <div className="text-center text-lg sm:text-xl font-medium mb-2" style={{ letterSpacing: '0.01em' }}>
+          Micro-moments. Macro-clarity.
+        </div>
+        {/* Invitation */}
+        <div className="text-center text-base text-black/70 mb-4">
+          Come breathe with me. Join the waitlist.
+        </div>
+        {/* Email Form */}
+        {!submitted ? (
+          <form onSubmit={handleSubmit} className="w-full flex flex-col sm:flex-row gap-3 items-center justify-center">
+            <input
+              ref={emailRef}
+              type="email"
+              required
+              placeholder="Your email"
+              className="flex-1 px-4 py-3 rounded-full border border-black/10 focus:border-black/30 outline-none bg-white text-base transition placeholder:text-black/40 min-w-[180px]"
+              aria-label="Your email"
+              disabled={loading}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            <button
+              type="submit"
+              className="px-6 py-3 rounded-full bg-black text-white font-medium text-base transition hover:bg-black/80 focus:outline-none focus:ring-2 focus:ring-black/30 min-w-[150px]"
+              disabled={loading}
+            >
+              {loading ? 'Sending…' : 'Breathe with me'}
+            </button>
+          </form>
+        ) : (
+          <div className="text-green-700 text-center font-medium py-4">Thank you for joining the waitlist!</div>
+        )}
+        {error && <div className="text-red-600 text-center mt-2 text-sm">{error}</div>}
+        {/* Privacy Statement */}
+        <div className="text-xs text-black/50 text-center mt-4 max-w-xs">
+          We respect your privacy. Your email will only be used for updates about Heijō. Unsubscribe anytime.
         </div>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+      {/* Footer */}
+      <footer className="w-full text-center text-xs text-black/40 mt-12 pt-8 pb-2">
+        Powered by Cylon Digital © 2025
       </footer>
+      {/* Keyframes for logo animation */}
+      <style jsx global>{`
+        @keyframes float {
+          0% { transform: translateY(0) rotate(-2deg) scale(1); opacity: 1; }
+          20% { transform: translateY(-8px) rotate(4deg) scale(1.04); opacity: 0.96; }
+          40% { transform: translateY(0) rotate(-2deg) scale(1); opacity: 1; }
+          60% { transform: translateY(6px) rotate(-4deg) scale(0.98); opacity: 0.98; }
+          80% { transform: translateY(0) rotate(2deg) scale(1.01); opacity: 1; }
+          100% { transform: translateY(0) rotate(-2deg) scale(1); opacity: 1; }
+        }
+      `}</style>
     </div>
   );
 }
