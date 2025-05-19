@@ -1,6 +1,8 @@
-import { FormEvent } from 'react'
+import { FormEvent, useState } from 'react'
 
 export default function EmailForm() {
+  const [isSubmitted, setIsSubmitted] = useState(false)
+
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const form = e.target as HTMLFormElement
@@ -13,10 +15,28 @@ export default function EmailForm() {
         body: JSON.stringify({ email }),
       })
       const result = await res.json()
-      alert(result.success ? 'Thank you!' : 'Error submitting email.')
+      if (result.success) {
+        setIsSubmitted(true)
+      } else {
+        alert('Error submitting email.')
+      }
     } catch (error) {
       alert('Error submitting email.')
     }
+  }
+
+  if (isSubmitted) {
+    return (
+      <div className="flex flex-col items-center gap-4">
+        <p className="text-lg">Thank you for joining our waitlist!</p>
+        <button
+          onClick={() => setIsSubmitted(false)}
+          className="px-4 py-2 text-blue-500 border border-blue-500 rounded-md hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          Back
+        </button>
+      </div>
+    )
   }
 
   return (
