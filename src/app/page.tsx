@@ -39,10 +39,10 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between items-center bg-[var(--background)] text-[var(--foreground)] px-4 py-8 sm:py-16 font-sans">
+    <div className="min-h-screen flex flex-col justify-between items-center bg-[#e5e1da] dark:bg-[#0a0a0a] text-black dark:text-[#ededed] px-4 py-8 sm:py-16 font-sans">
       <main className="flex flex-1 flex-col justify-center items-center w-full max-w-lg mx-auto gap-10">
         {/* Animated Logo */}
-        <h1 className="flex text-5xl sm:text-6xl font-normal mb-2 tracking-tight select-none" style={{ fontFamily: 'var(--font-logo)' }}>
+        <h1 className="flex text-5xl sm:text-6xl font-normal mb-2 tracking-tight select-none font-logo">
           {logo.map((char, i) => (
             <span
               key={i}
@@ -58,11 +58,11 @@ export default function Home() {
           ))}
         </h1>
         {/* Tagline */}
-        <div className="text-center text-lg sm:text-xl font-medium mb-2" style={{ letterSpacing: '0.01em' }}>
+        <div className="text-center text-lg sm:text-xl font-medium mb-2 tracking-tight">
           Micro-moments. Macro-clarity.
         </div>
         {/* Invitation */}
-        <div className="text-center text-base text-black/70 mb-4">
+        <div className="text-center text-base text-black/70 dark:text-white/70 mb-4 tracking-tight">
           Come breathe with me. Join the waitlist.
         </div>
         {/* Email Form */}
@@ -73,29 +73,29 @@ export default function Home() {
               type="email"
               required
               placeholder="Your email"
-              className="flex-1 px-4 py-3 rounded-full border border-black/10 focus:border-black/30 outline-none bg-white text-base transition placeholder:text-black/40 min-w-[180px]"
+              className="flex-1 px-4 py-3 rounded-full border border-black/10 dark:border-white/10 focus:border-black/30 dark:focus:border-white/30 outline-none bg-white dark:bg-black/20 text-black dark:text-white text-base transition placeholder:text-black/40 dark:placeholder:text-white/40 min-w-[180px] tracking-tight"
               aria-label="Your email"
               disabled={loading}
             />
             <button
               type="submit"
-              className="px-6 py-3 rounded-full bg-black text-white font-medium text-base transition hover:bg-black/80 focus:outline-none focus:ring-2 focus:ring-black/30 min-w-[150px]"
+              className="px-6 py-3 rounded-full bg-black dark:bg-white text-white dark:text-black font-medium text-base transition hover:bg-black/80 dark:hover:bg-white/80 focus:outline-none focus:ring-2 focus:ring-black/30 dark:focus:ring-white/30 min-w-[150px] tracking-tight"
               disabled={loading}
             >
               {loading ? 'Sending…' : 'Breathe with me'}
             </button>
           </form>
         ) : (
-          <div className="text-green-700 text-center font-medium py-4">Thank you for joining the waitlist!</div>
+          <div className="text-green-700 dark:text-green-400 text-center font-medium py-4 tracking-tight">Thank you for joining the waitlist!</div>
         )}
-        {error && <div className="text-red-600 text-center mt-2 text-sm">{error}</div>}
+        {error && <div className="text-red-600 dark:text-red-400 text-center mt-2 text-sm tracking-tight">{error}</div>}
         {/* Privacy Statement */}
-        <div className="text-xs text-black/50 text-center mt-4 max-w-xs">
+        <div className="text-xs text-black/50 dark:text-white/50 text-center mt-4 max-w-xs tracking-tight">
           We respect your privacy. Your email will only be used for updates about Heijō. Unsubscribe anytime.
         </div>
       </main>
       {/* Footer */}
-      <footer className="w-full text-center text-xs text-black/40 mt-12 pt-8 pb-2">
+      <footer className="w-full text-center text-xs text-black/40 dark:text-white/40 mt-12 pt-8 pb-2 tracking-tight">
         Powered by Cylon Digital © 2025
       </footer>
       {/* Keyframes for logo animation */}
