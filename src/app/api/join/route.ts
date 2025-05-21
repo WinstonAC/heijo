@@ -15,9 +15,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid email' }, { status: 400 });
     }
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("emails")
       .insert([{ email }]);
+
+    if (error) {
+      return NextResponse.json({ error: 'Database error' }, { status: 500 });
+    }
 
     const csvPath = path.join('/tmp', 'heijo-waitlist.csv');
     const row = `"${email}","${new Date().toISOString()}"\n`;
