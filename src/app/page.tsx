@@ -86,7 +86,17 @@ export default function Home() {
             </button>
           </form>
         ) : (
-          <div className="text-green-700 dark:text-green-400 text-center font-medium py-4 tracking-tight">Thank you for joining the waitlist!</div>
+          <div className="flex flex-col items-center gap-4">
+            <div className="text-green-700 dark:text-green-400 text-center font-medium py-4 tracking-tight">
+              Thank you for joining the waitlist!
+            </div>
+            <button
+              onClick={() => setSubmitted(false)}
+              className="px-4 py-2 text-sm text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition-colors"
+            >
+              Back
+            </button>
+          </div>
         )}
         {error && <div className="text-red-600 dark:text-red-400 text-center mt-2 text-sm tracking-tight">{error}</div>}
         {/* Privacy Statement */}

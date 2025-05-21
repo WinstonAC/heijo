@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
     "@supabase/supabase-js": "^2.49.5",
     "next": "15.3.2",
     "react": "^19.0.0",

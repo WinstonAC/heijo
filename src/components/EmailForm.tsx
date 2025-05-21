@@ -1,12 +1,15 @@
 import { FormEvent, useState } from 'react'
 
 export default function EmailForm() {
+  const [email, setEmail] = useState('')
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    const form = e.target as HTMLFormElement
-    const email = (form.elements.namedItem('email') as HTMLInputElement).value
+    setError('')
+    setIsLoading(true)
     
     try {
       const res = await fetch('/api/collect-email', {
@@ -14,21 +17,25 @@ export default function EmailForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       })
-      const result = await res.json()
-      if (result.success) {
+      const data = await res.json()
+      
+      if (res.ok) {
         setIsSubmitted(true)
+        setEmail('')
       } else {
-        alert('Error submitting email.')
+        setError(data.error || 'Something went wrong')
       }
     } catch (error) {
-      alert('Error submitting email.')
+      setError('Failed to submit email')
+    } finally {
+      setIsLoading(false)
     }
   }
 
   if (isSubmitted) {
     return (
       <div className="flex flex-col items-center gap-4">
-        <p className="text-lg">Thank you for joining our waitlist!</p>
+        <p className="text-lg">Thank you 🙏</p>
         <button
           onClick={() => setIsSubmitted(false)}
           className="px-4 py-2 text-blue-500 border border-blue-500 rounded-md hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -45,15 +52,22 @@ export default function EmailForm() {
         name="email"
         type="email"
         required
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
         className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         placeholder="Enter your email"
+        disabled={isLoading}
       />
       <button
         type="submit"
-        className="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        disabled={isLoading}
+        className="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
       >
-        Join
+        {isLoading ? 'Sending...' : 'Join'}
       </button>
+      {error && (
+        <p className="text-red-500 text-sm mt-2">{error}</p>
+      )}
     </form>
   )
 } 

@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export async function POST(req: NextRequest) {
   try {
@@ -8,6 +14,11 @@ export async function POST(req: NextRequest) {
     if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
       return NextResponse.json({ error: 'Invalid email' }, { status: 400 });
     }
+
+    const { data, error } = await supabase
+      .from("emails")
+      .insert([{ email }]);
+
     const csvPath = path.join('/tmp', 'heijo-waitlist.csv');
     const row = `"${email}","${new Date().toISOString()}"\n`;
     // Append to CSV (create if not exists)
