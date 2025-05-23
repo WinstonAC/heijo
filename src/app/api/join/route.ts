@@ -56,7 +56,7 @@ async function sendThankYouEmail(email: string) {
         template_params: {
           to_email: email,
           from_name: 'Heijō',
-          message: 'Thank you for joining the Heijō waitlist! We'll keep you updated.'
+          message: 'Thank you for joining the Heijō waitlist! We\'ll keep you updated.',
         }
       })
     });
