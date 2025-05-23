@@ -44,38 +44,74 @@ export async function OPTIONS() {
   return NextResponse.json({}, { headers: corsHeaders() });
 }
 
-export async function POST(req: NextRequest) {
-  // Log incoming request method and body
-  console.log('[API/join] Method:', req.method);
-  let body;
+async function sendThankYouEmail(email: string) {
   try {
-    body = await req.json();
-    console.log('[API/join] Body:', body);
-  } catch (parseError) {
-    console.error('[API/join] Failed to parse JSON body:', parseError);
-    return NextResponse.json({ success: false, error: 'Invalid JSON body' }, { status: 400 });
-  }
-
-  const { email } = body || {};
-  if (!email) {
-    console.warn('[API/join] Missing email field in request body:', body);
-    return NextResponse.json({ success: false, error: 'Email is required' }, { status: 400 });
-  }
-
-  // Try/catch around Supabase insert
-  try {
-    const { data, error } = await supabase
-      .from('emails')
-      .insert([{ email }])
-      .select();
-    if (error) {
-      console.error('[API/join] Supabase insert error:', error);
-      return NextResponse.json({ success: false, error: 'Failed to store email', details: error.message }, { status: 500 });
+    const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        service_id: process.env.EMAILJS_SERVICE_ID,
+        template_id: process.env.EMAILJS_TEMPLATE_ID,
+        user_id: process.env.EMAILJS_USER_ID,
+        template_params: {
+          to_email: email,
+          from_name: 'Heijō',
+          message: 'Thank you for joining the Heijō waitlist! We'll keep you updated.'
+        }
+      })
+    });
+    if (!res.ok) {
+      const error = await res.text();
+      throw new Error(error);
     }
-    console.log('[API/join] Successfully inserted email:', data);
-    return NextResponse.json({ success: true });
+    return true;
   } catch (err) {
-    console.error('[API/join] Unexpected error during Supabase insert:', err);
-    return NextResponse.json({ success: false, error: 'Internal server error', details: err instanceof Error ? err.message : String(err) }, { status: 500 });
+    console.error('[EmailJS] Failed to send thank-you email:', err);
+    return false;
+  }
+}
+
+export async function POST(req: Request) {
+  console.log("[/api/join] POST hit");
+
+  try {
+    const body = await req.json();
+    console.log("[/api/join] Request body:", body);
+
+    if (!body.email) {
+      console.error("[/api/join] Missing email");
+      return new Response(JSON.stringify({ error: "Missing email" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    const { error } = await supabase.from("emails").insert([{ email: body.email }]);
+
+    if (error) {
+      console.error("[/api/join] Supabase insert error:", error);
+      return new Response(JSON.stringify({ error: "Insert failed", detail: error.message }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Send thank-you email, but do not block user if it fails
+    try {
+      await sendThankYouEmail(body.email);
+    } catch (emailErr) {
+      // Already logged in sendThankYouEmail
+    }
+
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (err: any) {
+    console.error("[/api/join] Unexpected error:", err?.message || err);
+    return new Response(JSON.stringify({ error: "Unexpected server error", detail: err?.message || String(err) }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 } 
