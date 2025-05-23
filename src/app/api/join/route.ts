@@ -99,8 +99,8 @@ export async function POST(req: Request) {
     // Send thank-you email, but do not block user if it fails
     try {
       await sendThankYouEmail(body.email);
-    } catch (emailErr) {
-      // Already logged in sendThankYouEmail
+    } catch (error) {
+      console.error('[EmailJS ERROR]', error?.message || error);
     }
 
     return new Response(JSON.stringify({ success: true }), {
